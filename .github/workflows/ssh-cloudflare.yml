@@ -1,4 +1,5 @@
 name: Deploy to Self-Hosted Server
+
 on:
   workflow_dispatch:
 
@@ -6,26 +7,24 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install cloudflared
         run: |
           curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
           sudo dpkg -i cloudflared.deb
 
-      - name: Prepare SSH key
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-      - name: Deploy via Cloudflare Tunnel
-        env:
-          CLOUDFLARED_TUNNEL_CLIENT_ID: ${{ secrets.CF_TUNNEL_CLIENT_ID }}
-          CLOUDFLARED_TUNNEL_CLIENT_SECRET: ${{ secrets.CF_TUNNEL_CLIENT_SECRET }}
+      - name: Deploy to server
         run: |
           cloudflared access ssh \
-            --hostname afif@ssh.yourdomain.com \
-            --id-token-type service-token \
-            --exec 'bash deploy.sh'
+            --hostname afif@ssh.rojoinferno.com \
+            --id ${{ secrets.CF_TUNNEL_CLIENT_ID }} \
+            --service-token-secret ${{ secrets.CF_TUNNEL_CLIENT_SECRET }} \
+            -- 'cd contoh && git pull && npm install && pm2 restart all'
