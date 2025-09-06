@@ -26,4 +26,4 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           
           # Use cloudflared to execute commands over SSH
-          cloudflared access ssh --hostname ssh.yourdomain.com --id-token-type service-token --exec 'bash deploy.sh'
+          cloudflared access ssh --hostname ssh.rojoinferno.com --id ${{ secrets.CF_TUNNEL_CLIENT_ID }} --secret ${{ secrets.CF_TUNNEL_CLIENT_SECRET }}
