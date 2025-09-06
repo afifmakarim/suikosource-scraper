@@ -1,20 +1,29 @@
-name: Run command on remote server
+name: Deploy to Self-Hosted Server
 on:
   workflow_dispatch
+
 jobs:
-  ssh_command:
-    if: github.event.pull_request.merged == true
-    name: Run SSH command
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Connect and run command on remote server
-        uses: and-fm/cloudflared-ssh-action@v3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          private_key_filename: ${{ secrets.SSH_PRIVATE_KEY_FILENAME }}
-          private_key_value: ${{ secrets.SSH_PRIVATE_KEY_VALUE }}
-          port: ${{ secrets.SSH_PORT }}
-          service_token_id: ${{ secrets.SERVICE_TOKEN_ID }}
-          service_token_secret: ${{ secrets.SERVICE_TOKEN_SECRET }}
-          commands: mkdir hello-world -v
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install cloudflared
+        run: |
+          curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+          sudo dpkg -i cloudflared.deb
+
+      - name: Deploy via Cloudflare Tunnel
+        env:
+          CLOUDFLARED_TUNNEL_CLIENT_ID: ${{ secrets.CF_TUNNEL_CLIENT_ID }}
+          CLOUDFLARED_TUNNEL_CLIENT_SECRET: ${{ secrets.CF_TUNNEL_CLIENT_SECRET }}
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          # Configure SSH to use the private key
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          
+          # Use cloudflared to execute commands over SSH
+          cloudflared access ssh --hostname ssh.yourdomain.com --id-token-type service-token --exec 'bash deploy.sh'
