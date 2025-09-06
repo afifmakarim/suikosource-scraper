@@ -14,16 +14,23 @@ jobs:
           curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
           sudo dpkg -i cloudflared.deb
 
-      - name: Deploy via Cloudflare Tunnel
-        env:
-          CLOUDFLARED_TUNNEL_CLIENT_ID: ${{ secrets.CF_TUNNEL_CLIENT_ID }}
-          CLOUDFLARED_TUNNEL_CLIENT_SECRET: ${{ secrets.CF_TUNNEL_CLIENT_SECRET }}
-          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Setup SSH
         run: |
-          # Configure SSH to use the private key
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          
-          # Use cloudflared to execute commands over SSH
-          cloudflared access ssh --hostname ssh.rojoinferno.com --id ${{ secrets.CF_TUNNEL_CLIENT_ID }} --secret ${{ secrets.CF_TUNNEL_CLIENT_SECRET }}
+
+          cat >> ~/.ssh/config <<EOL
+          Host myserver
+            HostName ssh.rojoinferno.com
+            User ubuntu
+            IdentityFile ~/.ssh/id_ed25519
+            ProxyCommand cloudflared access ssh --hostname %h
+          EOL
+
+      - name: Deploy via Cloudflare Tunnel
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_TUNNEL_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_TUNNEL_CLIENT_SECRET }}
+        run: |
+          ssh -o StrictHostKeyChecking=no myserver "echo '✅ Connected via Cloudflare Tunnel!' && whoami && hostname"
