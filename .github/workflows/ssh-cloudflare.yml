@@ -23,7 +23,7 @@ jobs:
           cat >> ~/.ssh/config <<EOL
           Host myserver
             HostName ssh.rojoinferno.com
-            User ubuntu
+            User afif
             IdentityFile ~/.ssh/id_ed25519
             ProxyCommand cloudflared access ssh --hostname %h
           EOL
