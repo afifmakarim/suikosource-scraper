@@ -26,5 +26,4 @@ jobs:
           cloudflared access ssh \
             --hostname afif@ssh.rojoinferno.com \
             --id ${{ secrets.CF_TUNNEL_CLIENT_ID }} \
-            --service-token-secret ${{ secrets.CF_TUNNEL_CLIENT_SECRET }} \
-            -- 'cd contoh && git pull && npm install && pm2 restart all'
+            --service-token-secret ${{ secrets.CF_TUNNEL_CLIENT_SECRET }}
