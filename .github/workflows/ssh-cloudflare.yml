@@ -1,14 +1,13 @@
 name: Deploy to Self-Hosted Server
-
 on:
-  workflow_dispatch:
+  workflow_dispatch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Install cloudflared
         run: |
@@ -21,9 +20,17 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-      - name: Deploy to server
+          cat >> ~/.ssh/config <<EOL
+          Host myserver
+            HostName ssh.rojoinferno.com
+            User afif
+            IdentityFile ~/.ssh/id_ed25519
+            ProxyCommand cloudflared access ssh --hostname %h --id ${{ secrets.CF_TUNNEL_CLIENT_ID }} --secret ${{ secrets.CF_TUNNEL_CLIENT_SECRET }} 
+          EOL
+
+      - name: Deploy via Cloudflare Tunnel
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_TUNNEL_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_TUNNEL_CLIENT_SECRET }}
         run: |
-          cloudflared access ssh \
-            --hostname afif@ssh.rojoinferno.com \
-            --id ${{ secrets.CF_TUNNEL_CLIENT_ID }} \
-            --service-token-secret ${{ secrets.CF_TUNNEL_CLIENT_SECRET }}
+          ssh -o StrictHostKeyChecking=no myserver "echo '✅ Connected via Cloudflare Tunnel!' && whoami && hostname"
