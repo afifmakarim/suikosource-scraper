@@ -32,12 +32,9 @@ jobs:
         env:
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_TUNNEL_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_TUNNEL_CLIENT_SECRET }}
-          REPO: ${{ github.repository }}
         run: |
           ssh -o StrictHostKeyChecking=no myserver << 'EOF'
             echo '✅ Connected via Cloudflare Tunnel!'
-            echo ${{ github.repository }}
-            echo https://github.com/${REPO}.git
             APP_DIR=~/apps/nestjs-app
 
             REPOSITORY="https://github.com/${{ github.repository }}.git"
@@ -53,7 +50,7 @@ jobs:
               echo "📂 Project sudah ada, pull update..."
               cd $APP_DIR
               git fetch --all
-              git reset --hard origin/main
+              git reset --hard origin/master
             fi
       
             # build & deploy docker
