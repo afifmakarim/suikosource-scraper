@@ -35,10 +35,30 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no myserver << 'EOF'
             echo '✅ Connected via Cloudflare Tunnel!'
-            cd ~/Projects/sample-app
-
-            echo '🐳 Restarting Docker containers...'
-            docker compose down
-
-            echo '✅ Deployment finished!'
+      
+            APP_DIR=~/apps/nestjs-app
+      
+            # kalau folder belum ada -> clone
+            if [ ! -d "$APP_DIR" ]; then
+              echo "📂 Project belum ada, cloning baru..."
+              mkdir -p ~/apps
+              cd ~/apps
+              git clone https://github.com/${GITHUB_REPOSITORY}.git nestjs-app
+              cd nestjs-app
+            else
+              echo "📂 Project sudah ada, pull update..."
+              cd $APP_DIR
+              git fetch --all
+              git reset --hard origin/main
+            fi
+      
+            # build & deploy docker
+            docker compose pull
+            docker compose build --no-cache
+            docker compose up -d --remove-orphans
+      
+            # bersihkan docker yang tidak terpakai
+            docker system prune -af
+      
+            echo '🚀 Deploy selesai!'
           EOF
