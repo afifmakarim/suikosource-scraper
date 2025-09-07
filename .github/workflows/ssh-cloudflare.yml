@@ -35,14 +35,10 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no myserver << 'EOF'
             echo '✅ Connected via Cloudflare Tunnel!'
-            cd ~/apps/nestjs-app
-
-            echo '📥 Pulling latest code...'
-            git pull origin main
+            cd ~/Projects/sample-app
 
             echo '🐳 Restarting Docker containers...'
             docker compose down
-            docker compose up -d --build
 
             echo '✅ Deployment finished!'
           EOF
