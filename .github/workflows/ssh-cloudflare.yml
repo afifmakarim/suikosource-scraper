@@ -41,6 +41,7 @@ jobs:
             APP_DIR=~/apps/nestjs-app
 
             REPOSITORY="https://github.com/${{ github.repository }}.git"
+            echo $REPOSITORY
             # kalau folder belum ada -> clone
             if [ ! -d "$APP_DIR" ]; then
               echo "📂 Project belum ada, cloning baru..."
