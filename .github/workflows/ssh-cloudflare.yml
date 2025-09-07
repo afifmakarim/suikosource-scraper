@@ -16,10 +16,15 @@ jobs:
 
       - name: Setup SSH
         run: |
+          mkdir -p ~/.ssh
+          # echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          # chmod 600 ~/.ssh/id_ed25519
+
           cat >> ~/.ssh/config <<EOL
           Host myserver
             HostName ssh.rojoinferno.com
             User afif
+            IdentityFile ~/.ssh/id_ed25519
             ProxyCommand cloudflared access ssh --hostname %h --id ${{ secrets.CF_TUNNEL_CLIENT_ID }} --secret ${{ secrets.CF_TUNNEL_CLIENT_SECRET }} 
           EOL
 
