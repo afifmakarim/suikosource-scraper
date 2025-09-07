@@ -39,13 +39,14 @@ jobs:
             echo ${{ github.repository }}
             echo https://github.com/${REPO}.git
             APP_DIR=~/apps/nestjs-app
-      
+
+            REPOSITORY="https://github.com/${{ github.repository }}.git"
             # kalau folder belum ada -> clone
             if [ ! -d "$APP_DIR" ]; then
               echo "📂 Project belum ada, cloning baru..."
               mkdir -p ~/apps
               cd ~/apps
-              git clone https://github.com/${REPO}.git nestjs-app
+              git clone $REPOSITORY nestjs-app
               cd nestjs-app
             else
               echo "📂 Project sudah ada, pull update..."
