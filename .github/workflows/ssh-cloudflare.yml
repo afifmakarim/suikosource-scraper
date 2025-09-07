@@ -37,6 +37,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no myserver << 'EOF'
             echo '✅ Connected via Cloudflare Tunnel!'
             echo ${{ github.repository }}
+            echo https://github.com/${REPO}.git
             APP_DIR=~/apps/nestjs-app
       
             # kalau folder belum ada -> clone
