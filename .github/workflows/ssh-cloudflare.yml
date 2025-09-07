@@ -33,4 +33,16 @@ jobs:
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_TUNNEL_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_TUNNEL_CLIENT_SECRET }}
         run: |
-          ssh -o StrictHostKeyChecking=no myserver "echo '✅ Connected via Cloudflare Tunnel!' && whoami && hostname"
+          ssh -o StrictHostKeyChecking=no myserver << 'EOF'
+            echo '✅ Connected via Cloudflare Tunnel!'
+            cd ~/apps/nestjs-app
+
+            echo '📥 Pulling latest code...'
+            git pull origin main
+
+            echo '🐳 Restarting Docker containers...'
+            docker compose down
+            docker compose up -d --build
+
+            echo '✅ Deployment finished!'
+          EOF
