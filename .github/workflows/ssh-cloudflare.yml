@@ -1,10 +1,11 @@
 name: Deploy to Self-Hosted Server
 on:
-  workflow_dispatch
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -14,23 +15,19 @@ jobs:
           curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
           sudo dpkg -i cloudflared.deb
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-
-          cat >> ~/.ssh/config <<EOL
-          Host myserver
-            HostName ssh.rojoinferno.com
-            User afif
-            IdentityFile ~/.ssh/id_ed25519
-            ProxyCommand cloudflared access ssh --hostname %h --id ${{ secrets.CF_TUNNEL_CLIENT_ID }} --secret ${{ secrets.CF_TUNNEL_CLIENT_SECRET }} 
-          EOL
-
       - name: Deploy via Cloudflare Tunnel
         env:
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_TUNNEL_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_TUNNEL_CLIENT_SECRET }}
         run: |
-          ssh -o StrictHostKeyChecking=no myserver "echo '✅ Connected via Cloudflare Tunnel!' && whoami && hostname"
+          ssh -o StrictHostKeyChecking=no \
+            -o ProxyCommand="cloudflared access ssh --hostname ssh.rojoinferno.com \
+              --id $CF_ACCESS_CLIENT_ID --secret $CF_ACCESS_CLIENT_SECRET" \
+            afif@ssh.rojoinferno.com \
+            "
+            echo '✅ Connected via Cloudflare Tunnel!'
+            cd ~/apps/nestjs-app
+            git pull origin main
+            docker compose down
+            docker compose up -d --build
+            "
