@@ -64,12 +64,12 @@ jobs:
             ALADHAN_URL=${{ secrets.ALADHAN_URL }}
             ENV
   
-            echo '🐳 Building & deploying containers...'
-            docker compose build --no-cache
-            docker compose up -d --remove-orphans
+          echo '🐳 Building & deploying containers...'
+          docker compose build --no-cache
+          docker compose up -d --remove-orphans
   
-            echo '🧹 Cleaning unused images...'
-            docker image prune -f
+          echo '🧹 Cleaning unused images...'
+          docker image prune -f
   
-            echo '🚀 Deploy selesai!'
+          echo '🚀 Deploy selesai!'
           EOF
