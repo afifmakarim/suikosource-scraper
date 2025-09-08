@@ -59,20 +59,19 @@ jobs:
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             POSTGRES_DB=${{ secrets.POSTGRES_DB }}
             DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${{ secrets.POSTGRES_DB }}?schema=public
-
+  
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
-
+  
             ALADHAN_URL=${{ secrets.ALADHAN_URL }}
             ENV
-      
-            # build & deploy docker
-            docker compose pull
+  
+            echo '🐳 Building & deploying containers...'
             docker compose build --no-cache
             docker compose up -d --remove-orphans
-      
-            # bersihkan docker yang tidak terpakai
-            docker system prune -af
-      
+  
+            echo '🧹 Cleaning unused images...'
+            docker image prune -f
+  
             echo '🚀 Deploy selesai!'
-          EOF
+            EOF
