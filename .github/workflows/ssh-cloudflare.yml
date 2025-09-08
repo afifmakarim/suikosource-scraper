@@ -55,15 +55,13 @@ jobs:
 
             echo '📝 Writing .env file...'
             cat > .env << ENV
-            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-            DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${{ secrets.POSTGRES_DB }}?schema=public
-  
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
-  
-            ALADHAN_URL=${{ secrets.ALADHAN_URL }}
+              POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+              POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+              POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+              DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${{ secrets.POSTGRES_DB }}?schema=public
+              JWT_SECRET=${{ secrets.JWT_SECRET }}
+              JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
+              ALADHAN_URL=${{ secrets.ALADHAN_URL }}
             ENV
   
             echo '🐳 Building & deploying containers...'
